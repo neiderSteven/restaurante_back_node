@@ -1,6 +1,7 @@
 const Usuario = require('../models/Usuario');
 const Orden = require('../models/Orden');
 const Menu = require('../models/Menu');
+const Categoria = require('../models/Categoria');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({path: '.env'});
@@ -16,9 +17,18 @@ const resolvers = {
         obtenerOrdenes: async (__, {}, ctx) => {
             const ordenes = await Orden.find();
             return ordenes;
+        },
+        obtenerCategorias: async (__, {}) => {
+            const categorias = Categoria.find({});
+            return categorias;
+        },
+        obtenerMenus: async (__, {}) => {
+            const menus = Menu.find({});
+            return menus;
         }
     },
     Mutation: {
+        // Peticiones de usuario
         crearUsuario: async (__, { input }) => {
             const { nombre, correo, password, telefono, direccion } = input;
 
@@ -65,6 +75,7 @@ const resolvers = {
                 token: crearToken(usuarioCreado, process.env.SECRETA, '4hr')
             };
         },
+        //  Peticiones de Ordenes
         nuevaOrden: async (__, { input }) => {
 
             const { usuario, menu, descripcion, estado_preparacion, estado_pago } = input;
@@ -100,7 +111,73 @@ const resolvers = {
 
             await Orden.findByIdAndDelete({_id: id});
             return 'Proyecto eliminado';
-        }
+        },
+        // Peticiones de categorias
+        crearCategoria: async (__, { input }) => {
+            const { nombre } = input;
+
+            const categoriaCreada = await Categoria.findOne({ nombre });
+
+            if (categoriaCreada) {
+                throw new Error('La categoria ya se creo');
+            }
+
+            try {
+                //crear categoria
+                const categoriaNueva = new Categoria(input);
+                categoriaNueva.save();
+                return 'Categoria creada correctamente';
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        eliminarCategoria: async (__, { id }, ctx) => {
+            let categoria = await Categoria.findById(id);
+
+            //validamos que la orden este creada
+            if (!categoria) {
+                throw new Error('Categoria no encontrada');
+            }
+
+            await Categoria.findByIdAndDelete({_id: id});
+            return 'Categoria eliminada';
+        },
+        // Peticiones de Menu
+        crearMenu: async (__, { input }) => {
+
+            const { nombre, imagen, precio, categoria, estado_entrega, descripcion } = input;
+
+            try {
+                const nuevoMenu = Menu(input);
+                nuevoMenu.save();
+                return 'Menu creado';
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        actualizarMenu: async (__, { id, input }) => {
+            let menu = await Menu.findById(id);
+
+            //validamos que la orden este creada
+            if (!menu) {
+                throw new Error('Menu no encontrado');
+            }
+
+            menu = await Menu.findByIdAndUpdate({_id: id}, input, {new: true});
+            return menu;
+        },
+        eliminarMenu: async (__, { id }, ctx) => {
+            let menu = await Menu.findById(id);
+
+            //validamos que la orden este creada
+            if (!menu) {
+                throw new Error('Categoria no encontrada');
+            }
+
+            await Menu.findByIdAndDelete({_id: id});
+            return 'Menu Eliminado';
+        },
     }
 }
 

@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const MenuSchema = mongoose.Schema({
-    estado_entrega: {
-        type: String,
-        required: true
-    },
     nombre: {
         type: String,
         required: true
@@ -14,20 +10,20 @@ const MenuSchema = mongoose.Schema({
         required: true
     },
     precio: {
-        type: Boolean,
+        type: Number,
         required: true
     },
     categoria: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Categoria'
+    },
+    estado_entrega: {
         type: String,
         required: true
     },
     descripcion: {
         type: String,
         required: true
-    },
-    fecha: {
-        type: Date,
-        default: Date.now(),
     }
 })
 
