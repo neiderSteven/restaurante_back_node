@@ -1,18 +1,22 @@
 const Usuario = require('../models/Usuario');
+const Orden = require('../models/Orden');
+const Menu = require('../models/Menu');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({path: '.env'});
 
-// crea token
+// crear token
 const crearToken = (usuario, secreta, expiresIn) => {
     const { id, correo } = usuario;
-
     return jwt.sign({ id, correo}, secreta, { expiresIn });
 }
 
 const resolvers = {
     Query: {
-
+        obtenerOrdenes: async (__, {}, ctx) => {
+            const ordenes = await Orden.find();
+            return ordenes;
+        }
     },
     Mutation: {
         crearUsuario: async (__, { input }) => {
@@ -60,6 +64,42 @@ const resolvers = {
             return {
                 token: crearToken(usuarioCreado, process.env.SECRETA, '4hr')
             };
+        },
+        nuevaOrden: async (__, { input }) => {
+
+            const { usuario, menu, descripcion, estado_preparacion, estado_pago } = input;
+
+            try {
+
+                const ordenNueva = Orden(input);
+                const orden = await ordenNueva.save();
+                return orden;
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        actualizarOrden: async (__, { id, input }) => {
+            let orden = await Orden.findById(id);
+
+            //validamos que la orden este creada
+            if (!orden) {
+                throw new Error('Orden no encontrada');
+            }
+
+            orden = await Orden.findByIdAndUpdate({_id: id}, input, {new: true});
+            return orden;
+        },
+        eliminarOrden: async (__, { id }, ctx) => {
+            let orden = await Orden.findById(id);
+
+            //validamos que la orden este creada
+            if (!orden) {
+                throw new Error('Orden no encontrada');
+            }
+
+            await Orden.findByIdAndDelete({_id: id});
+            return 'Proyecto eliminado';
         }
     }
 }
