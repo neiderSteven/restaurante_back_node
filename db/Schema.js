@@ -2,23 +2,33 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
     type Orden {
-        usuario: ID
-        menu: [ID]
+        _id: ID
+        usuario: Usuario
+        menu: [Menu]
         descripcion: String
         estado_preparacion: String
         estado_pago: String
     }
 
-    type Categoria {
+    type Usuario {
         _id: ID
+        nombre: String
+        correo: String
+        telefono: String
+        direccion: String
+    }
+
+    type Categoria {
+        _id: ID 
         nombre: String
     }
 
     type Menu {
+        _id: ID
         nombre: String
         imagen: String 
         precio: Int 
-        categoria: [ID]
+        categoria: [Categoria]
         estado_entrega: String
         descripcion: String
     }

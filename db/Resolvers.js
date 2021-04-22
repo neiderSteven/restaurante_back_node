@@ -4,26 +4,26 @@ const Menu = require('../models/Menu');
 const Categoria = require('../models/Categoria');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({path: '.env'});
+require('dotenv').config({ path: '.env' });
 
 // crear token
 const crearToken = (usuario, secreta, expiresIn) => {
     const { id, correo } = usuario;
-    return jwt.sign({ id, correo}, secreta, { expiresIn });
+    return jwt.sign({ id, correo }, secreta, { expiresIn });
 }
 
 const resolvers = {
     Query: {
-        obtenerOrdenes: async (__, {}, ctx) => {
-            const ordenes = await Orden.find();
+        obtenerOrdenes: async (__, { }, ctx) => {
+            const ordenes = await Orden.find().populate({ path: "usuario" }).populate({path: "menu"});
             return ordenes;
         },
-        obtenerCategorias: async (__, {}) => {
+        obtenerCategorias: async (__, { }) => {
             const categorias = Categoria.find({});
             return categorias;
         },
-        obtenerMenus: async (__, {}) => {
-            const menus = Menu.find({});
+        obtenerMenus: async (__, { }) => {
+            const menus = Menu.find().populate({path: "categoria"});
             return menus;
         }
     },
@@ -98,7 +98,7 @@ const resolvers = {
                 throw new Error('Orden no encontrada');
             }
 
-            orden = await Orden.findByIdAndUpdate({_id: id}, input, {new: true});
+            orden = await Orden.findByIdAndUpdate({ _id: id }, input, { new: true });
             return orden;
         },
         eliminarOrden: async (__, { id }, ctx) => {
@@ -109,7 +109,7 @@ const resolvers = {
                 throw new Error('Orden no encontrada');
             }
 
-            await Orden.findByIdAndDelete({_id: id});
+            await Orden.findByIdAndDelete({ _id: id });
             return 'Proyecto eliminado';
         },
         // Peticiones de categorias
@@ -139,7 +139,7 @@ const resolvers = {
                 throw new Error('Categoria no encontrada');
             }
 
-            await Categoria.findByIdAndDelete({_id: id});
+            await Categoria.findByIdAndDelete({ _id: id });
             return 'Categoria eliminada';
         },
         // Peticiones de Menu
@@ -164,7 +164,7 @@ const resolvers = {
                 throw new Error('Menu no encontrado');
             }
 
-            menu = await Menu.findByIdAndUpdate({_id: id}, input, {new: true});
+            menu = await Menu.findByIdAndUpdate({ _id: id }, input, { new: true });
             return menu;
         },
         eliminarMenu: async (__, { id }, ctx) => {
@@ -175,7 +175,7 @@ const resolvers = {
                 throw new Error('Categoria no encontrada');
             }
 
-            await Menu.findByIdAndDelete({_id: id});
+            await Menu.findByIdAndDelete({ _id: id });
             return 'Menu Eliminado';
         },
     }
