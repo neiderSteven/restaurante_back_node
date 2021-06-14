@@ -8,6 +8,10 @@
     "start": "node .",
     "dev": "nodemon ."
   },
+  "engines": {
+    "node": "12.19.0",
+    "npm": "6.14.8"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
