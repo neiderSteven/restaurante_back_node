@@ -11,7 +11,8 @@ conexiondb();
 
 const PORT = process.env.PORT || 4000;
 
-const server = new ApolloServer({typeDefs, resolvers, contex: ({req}) => {
+const server = new ApolloServer({typeDefs, resolvers, introspection: true,
+    playground: true, contex: ({req}) => {
     const token = req.headers['autorizacion'] || '';
     if (token) {
         try {
